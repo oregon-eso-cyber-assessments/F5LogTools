@@ -1,10 +1,10 @@
-function ConvertFrom-F5AuditLog {
+function ConvertFrom-F5Log {
 
     <#
     .SYNOPSIS
-        Converts F5 audit log files into PowerShell objects.
+        Converts F5 log files into PowerShell objects.
     .DESCRIPTION
-        Converts F5 audit log files into PowerShell objects.
+        Converts F5 log files into PowerShell objects.
     .EXAMPLE
         ConvertFrom-F5AuditLog -Path C:\path\to\audit.log
         Converts 'audit.log' into PowerShell objects.
@@ -36,7 +36,7 @@ function ConvertFrom-F5AuditLog {
     .LINK
         https://github.com/oregon-eso-cyber-assessments
     .FUNCTIONALITY
-        Converts F5 audit log files into powershell objects.
+        Converts F5 log files into powershell objects.
     #>
 
     [CmdletBinding()]
@@ -64,15 +64,15 @@ function ConvertFrom-F5AuditLog {
 
     begin {
 
-        if (-not ($PSBoundParameters.Keys | Where-Object { $_ -eq 'FileFilter' })) {
-            $FileFilter = 'audit*'
+        if (-not ($PSBoundParameters.Keys -contains 'FileFilter' )) {
+            $FileFilter = '*'
         } #if FileFilter
 
-        if (-not ($PSBoundParameters.Keys | Where-Object { $_ -eq 'IncludeRegEx' })) {
+        if (-not ($PSBoundParameters.Keys -contains 'IncludeRegEx' )) {
             $IncludeRegEx = '.*'
         } #if IncludeRegEx
 
-        if (-not ($PSBoundParameters.Keys | Where-Object { $_ -eq 'ExcludeRegEx' })) {
+        if (-not ($PSBoundParameters.Keys -contains 'ExcludeRegEx' )) {
             $ExcludeRegEx = '^$'
         } #if ExcludeRegEx
 
@@ -112,7 +112,7 @@ function ConvertFrom-F5AuditLog {
             $ValueArray = $_.SubString(16).Split(' ')
             $Hostname = $ValueArray[0]
             $Level = $ValueArray[1]
-            $Source = $ValueArray[2].Split('[')[0]
+            $Source = $ValueArray[2].Split('[')[0].Split('(')[0] -replace '(-|:)'
             $MessageArray = ($ValueArray | Select-Object -Skip 4)
             $MetaArray = $MessageArray | Where-Object { $_ -match '=' }
             $UserEnum = $MetaArray | Where-Object { $_ -match 'user' }
@@ -147,4 +147,4 @@ function ConvertFrom-F5AuditLog {
 
     } #process
 
-} #function ConvertFrom-F5AuditLog
+} #function ConvertFrom-F5Log
