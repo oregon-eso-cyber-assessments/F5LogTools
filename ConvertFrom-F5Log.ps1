@@ -43,7 +43,7 @@ function ConvertFrom-F5Log {
 
     param (
 
-        [Parameter(ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [Alias('PSPath','FullName')]
         [string[]]
         $Path,
@@ -64,15 +64,15 @@ function ConvertFrom-F5Log {
 
     begin {
 
-        if (-not ($PSBoundParameters.Keys -contains 'FileFilter' )) {
+        if (-not ($PSBoundParameters['FileFilter'])) {
             $FileFilter = '*'
         } #if FileFilter
 
-        if (-not ($PSBoundParameters.Keys -contains 'IncludeRegEx' )) {
+        if (-not ($PSBoundParameters['IncludeRegEx'])) {
             $IncludeRegEx = '.*'
         } #if IncludeRegEx
 
-        if (-not ($PSBoundParameters.Keys -contains 'ExcludeRegEx' )) {
+        if (-not ($PSBoundParameters['ExcludeRegEx'])) {
             $ExcludeRegEx = '^$'
         } #if ExcludeRegEx
 
@@ -121,7 +121,7 @@ function ConvertFrom-F5Log {
                 $User = ($UserEnum).Split('=')[-1].Split('(')[0]
             } else {
                 $User = '-'
-            }
+            } #if
 
             $Year = (Get-Date).Year.ToString()
             $Date = Get-Date -Date "$("$($_.SubString(0,6)) $Year" -replace '\s\s',' ') $($_.SubString(7,8))"
@@ -130,7 +130,7 @@ function ConvertFrom-F5Log {
                 $TimeStamp = [string]$Date.GetDateTimeFormats('s')
             } else {
                 $TimeStamp = $Date
-            }
+            } #if
 
             $MessageText = (($MessageArray | Where-Object { $_ -notmatch '=' }) -join ' ').Split(']')[-1].Trim()
 
