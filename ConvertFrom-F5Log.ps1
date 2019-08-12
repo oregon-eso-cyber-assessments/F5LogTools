@@ -9,7 +9,7 @@ function ConvertFrom-F5Log {
         ConvertFrom-F5AuditLog -Path C:\path\to\audit.log
         Converts 'audit.log' into PowerShell objects.
     .EXAMPLE
-        ConvertFrom-F5AuditLog -Path C:\path\to\var\log -IncludeRegEx tmsh
+        ConvertFrom-F5AuditLog -Path C:\path\to\var\log -IncludeRegEx tmsh -FileFilter audit*
         Converts all files under 'C:\path\to\var\log' named 'audit*' into PowerShell objects.
         Filters the output to only entries related to F5 Traffic Management Shell (tmsh).
     .PARAMETER Path
@@ -19,7 +19,7 @@ function ConvertFrom-F5Log {
     .PARAMETER ExcludeRegEx
         RegEx filter for logs to exclude. Defaults to '^$'
     .PARAMETER FileFilter
-        Path filter for input files.
+        Path filter for input files. Defaults to '*'
     .PARAMETER TimeStampToString
         Switch to convert TimeStamp parameter from [datetime] to [string].
     .INPUTS
