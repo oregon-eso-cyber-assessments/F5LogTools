@@ -22,6 +22,8 @@ function ConvertFrom-F5Log {
         Path filter for input files. Defaults to '*'
     .PARAMETER TimeStampToString
         Switch to convert TimeStamp parameter from [datetime] to [string].
+    .PARAMETER Year
+        The year as a string.
     .INPUTS
         System.Object
     .OUTPUTS
@@ -58,7 +60,10 @@ function ConvertFrom-F5Log {
         $FileFilter,
 
         [switch]
-        $TimeStampToString
+        $TimeStampToString,
+
+        [string]
+        $Year
 
     ) #param
 
@@ -75,6 +80,10 @@ function ConvertFrom-F5Log {
         if (-not ($PSBoundParameters['ExcludeRegEx'])) {
             $ExcludeRegEx = '^$'
         } #if ExcludeRegEx
+
+        if (-not ($PSBoundParameters['Year'])) {
+            $Year = (Get-Date).Year.ToString()
+        } #if Year
 
         $DateFormatRegEx = '^\w\w\w\s+\d+\s\d\d:\d\d:\d\d'
         $LogSeverityRegEx = '(emerg|alert|crit|err|warning|notice|info|debug)'
@@ -123,7 +132,6 @@ function ConvertFrom-F5Log {
                 $User = '-'
             } #if
 
-            $Year = (Get-Date).Year.ToString()
             $Date = Get-Date -Date "$("$($_.SubString(0,6)) $Year" -replace '\s\s',' ') $($_.SubString(7,8))"
 
             if ($TimeStampToString) {
