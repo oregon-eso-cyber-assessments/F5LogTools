@@ -4,7 +4,7 @@ Some PowerShell tools for working with F5 logs.
 
 ## Getting Started
 
-Clone the repo and get started.
+Clone the repo to get started...
 
 ```powershell
 $F5LogTools = "$($env:PSModulePath.Split(';')[0])/F5LogTools"
