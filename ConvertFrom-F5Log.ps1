@@ -12,6 +12,29 @@ function ConvertFrom-F5Log {
         ConvertFrom-F5Log -Path C:\path\to\var\log -IncludeRegEx tmsh -FileFilter audit*
         Converts all files under 'C:\path\to\var\log' named 'audit*' into PowerShell objects.
         Filters the output to only entries related to F5 Traffic Management Shell (tmsh).
+    .EXAMPLE
+        # Search ltm logs for attacks and calculate the duration of each one.
+        ConvertFrom-F5Log -Path 'C:\path\to\var\log' -FileFilter ltm* -IncludeRegEx attack | ForEach-Object {
+            $AttackID = $_.Message.Split(' ')[-1] -replace '\.'
+            $AttackVector = [regex]::Matches($($_.Message),'vector\s.+(?=,)').Value.ToString() -replace 'vector\s'
+            Add-Member -InputObject $_ -MemberType NoteProperty -Name AttackID -Value $AttackID
+            Add-Member -InputObject $_ -MemberType NoteProperty -Name AttackVector -Value $AttackVector -PassThru
+        } | Group-Object -Property AttackID | Where-Object { $_.Count -eq 2 } | ForEach-Object {
+            $TheEvents = $_.Group | Sort-Object -Property TimeStamp
+            $TotalSeconds = (New-TimeSpan -Start $TheEvents[0].TimeStamp -End $TheEvents[-1].TimeStamp).TotalSeconds
+            New-Object -TypeName psobject -Property @{
+                Hostname = $TheEvents[0].Hostname
+                AttackID = $TheEvents[0].AttackID
+                AttackVector = $TheEvents[0].AttackVector
+                StartTime = $TheEvents[0].TimeStamp
+                StopTime = $TheEvents[-1].TimeStamp
+                TotalSeconds = [int]$TotalSeconds
+            }
+        } | Tee-Object -Variable Attacks |
+        Select-Object -Property Hostname,AttackID,AttackVector,StartTime,StopTime,TotalSeconds
+    .EXAMPLE
+        $Attacks | Group-Object -Property AttackVector | Sort-Object -Property Count -Descending
+        Assuming you already ran example 3, summarize attack totals by vector.
     .PARAMETER Path
         Path to the file(s) or folder(s) to be converted.
     .PARAMETER IncludeRegEx
